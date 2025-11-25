@@ -5,3 +5,4 @@ export { TrackingService } from "./TrackingService";
 export { ShopifyService } from "./ShopifyService";
 export { MetaAdsService } from "./MetaAdsService";
 export { LLMClient } from "./LLMClient";
+export { NotificationService } from "./NotificationService";
