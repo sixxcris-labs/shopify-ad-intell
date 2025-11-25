@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                 String    @id @default(cuid())
+  name               String
+  shopifyDomain      String    @unique
+  shopifyAccessToken String?
+  plan               String    @default("free")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  users        User[]
+  adAccounts   AdAccount[]
+  campaigns    Campaign[]
+  rules        Rule[]
+  alerts       Alert[]
+  settings     Settings?
+  metricsDaily MetricsDaily[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  email     String
+  role      String   @default("marketer")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model AdAccount {
+  id           String   @id @default(cuid())
+  tenantId     String
+  provider     String   // meta, google, tiktok
+  externalId   String
+  name         String
+  accessToken  String?
+  refreshToken String?
+  status       String   @default("active")
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaigns Campaign[]
+
+  @@unique([tenantId, provider, externalId], name: "tenant_provider_external_unique")
+}
+
+model Campaign {
+  id              String   @id @default(cuid())
+  tenantId        String
+  adAccountId     String
+  externalId      String
+  name            String
+  status          String
+  objective       String?
+  automationLevel String   @default("manual")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  adAccount AdAccount @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  metrics   MetricsDaily[]
+
+  @@unique([adAccountId, externalId], name: "ad_account_external_unique")
+}
+
+model MetricsDaily {
+  id            String   @id @default(cuid())
+  tenantId      String
+  date          DateTime @db.Date
+  dimensionType String   // campaign, adset, ad, product, account, adaccount
+  dimensionId   String
+  spend         Decimal  @db.Decimal(12, 2) @default(0)
+  revenue       Decimal  @db.Decimal(12, 2) @default(0)
+  orders        Int      @default(0)
+  customers     Int      @default(0)
+  impressions   Int      @default(0)
+  clicks        Int      @default(0)
+  conversions   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, date, dimensionType, dimensionId], name: "metrics_dimension_unique")
+  @@index([tenantId, date], name: "metrics_tenant_date_idx")
+}
+
+model Rule {
+  id              String   @id @default(cuid())
+  tenantId        String
+  name            String
+  description     String?
+  scope           String   // account, campaign, adset, ad
+  automationMode  String   @default("suggestions_only")
+  triggers        Json
+  conditions      Json
+  actions         Json
+  riskLevel       String   @default("medium")
+  active          Boolean  @default(true)
+  lastTriggeredAt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  executions  RuleExecution[]
+}
+
+model RuleExecution {
+  id               String   @id @default(cuid())
+  ruleId           String
+  tenantId         String
+  triggered        Boolean
+  conditionsMet    Json
+  actionsTaken     Json
+  affectedEntities Json
+  executedAt       DateTime @default(now())
+
+  rule   Rule   @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Alert {
+  id             String   @id @default(cuid())
+  tenantId       String
+  type           String
+  severity       String   // low, medium, high, critical
+  entityType     String   // campaign, ad_set, ad, tracking, system
+  entityId       String?
+  title          String
+  message        String
+  recommendation String?
+  status         String   @default("open")
+  snoozedUntil   DateTime?
+  resolvedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status], name: "alert_tenant_status_idx")
+}
+
+model Settings {
+  id            String   @id @default(cuid())
+  tenantId      String   @unique
+  brandProfile  Json
+  automation    Json
+  notifications Json
+  community     Json
+  updatedAt     DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
