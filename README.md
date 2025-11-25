@@ -177,3 +177,5 @@ pnpm clean        # Clean build artifacts
 
 ## License
 Private – All rights reserved.
+#   s h o p i f y - a d - i n t e l l  
+ 
