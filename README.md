@@ -1,43 +1,48 @@
-# Shopify Ad Intelligence
+ Shopify Ad Intelligence
 
-> Profit-first AI co-pilot for Shopify merchants running Meta Ads. Connects Shopify + Meta data, applies world-class media-buying logic through an LLM-powered brain, and automates decisions with configurable safety rails.
+> Profit-first AI co-pilot for Shopify brands running Meta ads. It connects Shopify + Meta data, runs world-class media-buying logic through an LLM-powered brain, and automates decisions with configurable safety rails.
 
 ## Table of Contents
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Repository Layout](#repository-layout)
-- [Getting Started](#getting-started)
-- [Workspace Commands](#workspace-commands)
-- [Backend API](#backend-api)
-- [Frontend Experience](#frontend-experience)
-- [Core Modules](#core-modules)
-- [Data & Integrations](#data--integrations)
-- [Testing & Quality](#testing--quality)
-- [Roadmap](#roadmap)
-- [License](#license)
+
+* [Overview](#overview)
+* [Architecture](#architecture)
+* [Repository Layout](#repository-layout)
+* [Getting Started](#getting-started)
+* [Workspace Commands](#workspace-commands)
+* [Backend API](#backend-api)
+* [Frontend Experience](#frontend-experience)
+* [Core Modules](#core-modules)
+* [Data & Integrations](#data--integrations)
+* [Testing & Quality](#testing--quality)
+* [Roadmap](#roadmap)
+* [License](#license)
 
 ## Overview
-The platform turns noisy acquisition data into clear, profit-focused actions:
-- **Profit-first metrics** such as MER, CAC, LTV:CAC, AOV, and payback period.
-- **MetaBrain AI co-pilot** that blends rule-based guardrails with GPT-4o/Claude reasoning.
-- **Automation engine** that can suggest, alert, or execute actions across campaigns.
-- **Tracking command center** for Pixel + CAPI diagnostics and recommendations.
-- **Creative intelligence** for variants, scoring, compliance, and competitor monitoring.
-- **Enterprise foundation**: Prisma/PostgreSQL, Redis, encrypted tokens, background workers, and Slack/Discord/Email notifications.
+
+Turn noisy acquisition data into clear, profit-focused actions:
+
+* **Profit-first metrics**: MER, CAC, LTV:CAC, AOV, payback period.
+* **MetaBrain AI co-pilot** that blends rule-based guardrails with LLM reasoning.
+* **Automation engine** that can suggest, alert, or execute campaign actions.
+* **Tracking command center** for Pixel + CAPI diagnostics and fixes.
+* **Creative intelligence** for variants, scoring, compliance, and competitive monitoring.
+* **Production-ready foundation**: Prisma/PostgreSQL, Redis, encrypted tokens, background workers, and Slack/Discord/Email notifications.
 
 ## Architecture
-| Layer | Technology | Notes |
-|-------|------------|-------|
-| Frontend | Next.js 14, React 18, Shopify Polaris, App Bridge | Served on `http://localhost:4310` in dev |
-| Backend | Express.js, TypeScript, Zod, Prisma | API + workers on `http://localhost:4311` |
-| Database | PostgreSQL + Prisma ORM | Tokenized data + metrics warehouse |
-| Cache/Queues | Redis 7 | OAuth nonce storage, future job queues |
-| AI/ML | OpenAI GPT-4o, Anthropic Claude Sonnet | Abstracted via `LLMClient` with retries/streaming |
-| Notifications | SendGrid, Slack, Discord webhooks | Configurable per tenant |
-| Infrastructure | pnpm workspaces, Docker (future), GitHub Actions CI | Ready for containerized deploys |
+
+| Layer          | Technology                                        | Notes                                       |
+| -------------- | ------------------------------------------------- | ------------------------------------------- |
+| Frontend       | Next.js 14, React 18, Shopify Polaris, App Bridge | Dev: `http://localhost:4310`                |
+| Backend        | Express.js, TypeScript, Zod, Prisma               | API + workers: `http://localhost:4311`      |
+| Database       | PostgreSQL + Prisma ORM                           | Tokenized data + metrics warehouse          |
+| Cache/Queues   | Redis 7                                           | OAuth nonces + future job queues            |
+| AI/ML          | OpenAI GPT-4o, Anthropic Claude Sonnet            | Abstracted via `LLMClient` (retries/stream) |
+| Notifications  | SendGrid, Slack, Discord webhooks                 | Configurable per tenant                     |
+| Infrastructure | pnpm workspaces, Docker (planned), GitHub Actions | Container-friendly, CI-ready                |
 
 ## Repository Layout
-```
+
+```bash
 ├── backend/                     # Express API + workers
 │   ├── src/
 │   │   ├── api/                 # REST routes (auth, overview, campaigns, rules…)
@@ -48,23 +53,26 @@ The platform turns noisy acquisition data into clear, profit-focused actions:
 │   └── prisma/                  # schema.prisma + migrations
 ├── frontend/                    # Next.js app with Polaris UI
 │   ├── src/pages/               # Overview, Campaigns, Rules, Creatives, Alerts, Reports, Settings
-│   ├── src/components/          # App layout and sections
+│   ├── src/components/          # Layout + shared UI sections
 │   └── src/lib/                 # API client, Shopify helpers
 ├── common/                      # Shared types + presets
-│   ├── src/types/               # Metrics, rules, meta brain contracts
+│   ├── src/types/               # Metrics, rules, MetaBrain contracts
 │   └── src/config/              # Rule presets, shared config
 ├── docs/                        # Supplementary documentation
 └── shopify-ad-intelligence-guide.md  # Full implementation playbook
 ```
 
 ## Getting Started
+
 ### Prerequisites
-- Node.js 20+
-- pnpm 9+
-- PostgreSQL 14+ (Phase 2)
-- Redis 7+
+
+* Node.js 20+
+* pnpm 9+
+* PostgreSQL 14+ (Phase 2+)
+* Redis 7+
 
 ### Installation
+
 ```bash
 pnpm install
 
@@ -74,108 +82,121 @@ cp frontend/.env.example frontend/.env
 ```
 
 ### Environment Variables (highlights)
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PORT` | Backend port | `4311` |
-| `SHOPIFY_APP_URL` | Public/frontend URL | `http://localhost:4310` |
-| `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET` | Shopify OAuth credentials | `xxx` |
-| `SHOPIFY_SCOPES` | Requested Shopify scopes | `read_orders,write_products` |
-| `META_APP_ID` / `META_APP_SECRET` | Meta Marketing API creds | `xxx` |
-| `DATABASE_URL` | Prisma connection string | `postgresql://localhost:5544/ad_intelligence` |
-| `REDIS_URL` | Redis connection string | `redis://localhost:6385` |
-| `LLM_PROVIDER` | `openai` or `anthropic` | `openai` |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | LLM keys | `sk-...` |
-| `ENCRYPTION_KEY` | 32-byte hex for token encryption | `0123...abcd` |
-| `SENDGRID_API_KEY` / `SLACK_WEBHOOK_URL` / `DISCORD_WEBHOOK_URL` | Notification channels | `https://hooks...` |
+
+| Variable                                                         | Description                      | Example                                       |
+| ---------------------------------------------------------------- | -------------------------------- | --------------------------------------------- |
+| `PORT`                                                           | Backend port                     | `4311`                                        |
+| `SHOPIFY_APP_URL`                                                | Public/frontend URL              | `http://localhost:4310`                       |
+| `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET`                         | Shopify OAuth creds              | `xxx`                                         |
+| `SHOPIFY_SCOPES`                                                 | Shopify scopes                   | `read_orders,write_products`                  |
+| `META_APP_ID` / `META_APP_SECRET`                                | Meta Marketing API creds         | `xxx`                                         |
+| `DATABASE_URL`                                                   | Prisma connection string         | `postgresql://localhost:5544/ad_intelligence` |
+| `REDIS_URL`                                                      | Redis connection string          | `redis://localhost:6385`                      |
+| `LLM_PROVIDER`                                                   | `openai` or `anthropic`          | `openai`                                      |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`                           | LLM API keys                     | `sk-...`                                      |
+| `ENCRYPTION_KEY`                                                 | 32-byte hex for token encryption | `0123...abcd`                                 |
+| `SENDGRID_API_KEY` / `SLACK_WEBHOOK_URL` / `DISCORD_WEBHOOK_URL` | Notification channels            | `https://hooks...`                            |
 
 ### Run the stack
+
 ```bash
-pnpm dev          # Start frontend + backend
+pnpm dev          # Start frontend + backend together
 pnpm dev:backend  # API only (http://localhost:4311)
 pnpm dev:frontend # UI only (http://localhost:4310)
 ```
 
 ### Default Local Ports
-- Frontend: `http://localhost:4310`
-- Backend / API: `http://localhost:4311`
-- PostgreSQL: `localhost:5544`
-- Redis: `localhost:6385`
 
-> These non-standard ports avoid conflicts with other projects that typically occupy 3000/3001/5432/6379.
+* Frontend: `http://localhost:4310`
+* Backend / API: `http://localhost:4311`
+* PostgreSQL: `localhost:5544`
+* Redis: `localhost:6385`
+
+> Non-standard ports avoid conflicts with common defaults (`3000/3001/5432/6379`).
 
 ## Workspace Commands
+
 ```bash
 pnpm build        # Build all packages
 pnpm test         # Run unit + integration tests
 pnpm lint         # ESLint across packages
-pnpm typecheck    # tsc --noEmit for each workspace
+pnpm typecheck    # TypeScript --noEmit per workspace
 pnpm --filter backend prisma migrate dev --name init  # Create DB schema
 pnpm clean        # Clean build artifacts
 ```
 
 ## Backend API
+
 ### Base URL
-- Development: `http://localhost:4311/api`
+
+* Dev: `http://localhost:4311/api`
 
 ### Key Routes
-| Route | Description |
-|-------|-------------|
-| `GET /health` | Liveness + version |
-| `GET /overview` | Profit-first KPIs + summaries |
-| `GET /overview/recommendations` | AI/Rule driven insights |
-| `GET /campaigns` + `/campaigns/:id` | Meta campaign data |
-| `GET/POST /rules` | Automation rule CRUD |
-| `POST /rules/:id/test` | Dry-run rule evaluation |
-| `GET /creatives/*` | Creative variants, competitors, scoring |
-| `GET /alerts` / `/alerts/stats/summary` | Alert center |
-| `GET /reports/*` | Summary, creative, benchmark, cohort reports |
-| `GET /settings` + sub-routes | Brand profile, automation, notifications, integrations |
-| `GET /tracking/*` | Pixel/CAPI status, diagnostics, recommendations |
-| `GET /auth/shopify` | Shopify OAuth entry (HMAC + Redis nonce) |
-| `GET /auth/meta` | Meta Marketing OAuth flow |
+
+| Route                                   | Description                                            |
+| --------------------------------------- | ------------------------------------------------------ |
+| `GET /health`                           | Liveness + version                                     |
+| `GET /overview`                         | Profit-first KPIs + summaries                          |
+| `GET /overview/recommendations`         | AI/Rule-driven insights                                |
+| `GET /campaigns` / `/campaigns/:id`     | Meta campaign data                                     |
+| `GET /rules` / `POST /rules`            | Automation rule CRUD                                   |
+| `POST /rules/:id/test`                  | Dry-run rule evaluation                                |
+| `GET /creatives/*`                      | Creative variants, competitors, scoring                |
+| `GET /alerts` / `/alerts/stats/summary` | Alert center                                           |
+| `GET /reports/*`                        | Summary, creative, benchmark, cohort reports           |
+| `GET /settings` + sub-routes            | Brand profile, automation, notifications, integrations |
+| `GET /tracking/*`                       | Pixel/CAPI status, diagnostics, recommendations        |
+| `GET /auth/shopify`                     | Shopify OAuth (HMAC + Redis nonce)                     |
+| `GET /auth/meta`                        | Meta Marketing OAuth flow                              |
 
 ### Background Workers
-- `dataSync`: pulls Shopify orders + Meta insights into `MetricsDaily` via Prisma, ensuring MER/CAC dashboards have fresh data.
-- `ruleExecutor`: evaluates active rules, records executions, invokes NotificationService, and (soon) applies Meta actions.
+
+* `dataSync` – Pulls Shopify orders + Meta insights into `MetricsDaily` via Prisma so MER/CAC dashboards stay fresh.
+* `ruleExecutor` – Evaluates active rules, logs executions, triggers `NotificationService`, and (soon) applies Meta actions.
 
 ## Frontend Experience
-- Next.js 14 app styled with Shopify Polaris for a native-admin feel.
-- Pages: Overview dashboard, Campaign explorer, Rule builder, Creative Intelligence, Creative Studio, Alerts, Reports, Settings.
-- API layer in `frontend/src/lib/apiClient.ts` handles typed requests to the backend, respecting `NEXT_PUBLIC_API_URL`.
-- App Bridge-ready layout via `components/layout/AppLayout.tsx`, ready for embedded app deployment.
+
+* Next.js 14 app styled with Shopify Polaris for a native-admin feel.
+* Key pages: Overview, Campaigns, Rules, Creative Intelligence, Creative Studio, Alerts, Reports, Settings.
+* API layer in `frontend/src/lib/apiClient.ts` provides typed access to the backend via `NEXT_PUBLIC_API_URL`.
+* App Bridge-ready layout in `components/layout/AppLayout.tsx` for embedded-app deployment.
 
 ## Core Modules
-- **MetricsService** – Computes MER, CAC, LTV:CAC, payback, compares time windows, and scores account health.
-- **MetaBrainService** – Aggregates live/historical metrics, campaign performance, tracking health, and active rules; falls back to rule-based output or uses the LLM for structured recommendations (JSON schema validated).
-- **LLMClient** – Provider-agnostic wrapper with retries, exponential backoff, JSON parsing helper, and streaming support for GPT-4o.
-- **RulesEngine** – Evaluates preset/custom rules, interprets risk levels, and powers the automation loop.
-- **ShopifyService / MetaAdsService** – Thin SDKs over Shopify Admin API (2024-01) and Meta Marketing API (v19) for OAuth, campaign data, insights, and budget controls.
-- **NotificationService** – Sends multi-channel notifications (email via SendGrid, Slack, Discord) with severity-aware formatting.
-- **TrackingService** – Synthesizes Pixel + CAPI status, EMQ, dedup rates, and recommended fixes.
+
+* **MetricsService** – Computes MER, CAC, LTV:CAC, payback, window comparisons, and overall account health scores.
+* **MetaBrainService** – Aggregates metrics, campaign performance, tracking health, and active rules; falls back to deterministic rules or uses the LLM for schema-validated recommendations.
+* **LLMClient** – Provider-agnostic wrapper with retries, exponential backoff, JSON parsing helpers, and streaming support.
+* **RulesEngine** – Evaluates preset/custom rules, handles risk levels, and powers the automation loop.
+* **ShopifyService / MetaAdsService** – Thin SDKs over Shopify Admin API (2024-01) and Meta Marketing API (v19) for auth, data, insights, and budget controls.
+* **NotificationService** – Multi-channel notifications (SendGrid email, Slack, Discord) with severity-aware formatting.
+* **TrackingService** – Combines Pixel + CAPI status, EMQ, deduplication rates, and recommended fixes.
 
 ## Data & Integrations
-- **Prisma ORM** with PostgreSQL backing multi-tenant objects (Tenants, Users, AdAccounts, Campaigns, MetricsDaily, Rules, Alerts, Settings).
-- **Redis** caches Shopify OAuth nonces (state validation) and is ready for job queues/rate limiting.
-- **Token Encryption** implemented via AES-256-GCM (`backend/src/utils/crypto.ts`), keyed by `ENCRYPTION_KEY`.
-- **Shopify OAuth** verifies HMAC signatures, stores encrypted tokens, and auto-registers critical webhooks.
-- **Meta OAuth** exchanges codes for long-lived tokens, persists ad accounts, and seeds default accounts.
-- **Background jobs** keep MetricsDaily tables hydrated and log every rule evaluation for auditability.
+
+* **Prisma ORM** with PostgreSQL backing multi-tenant entities: Tenants, Users, AdAccounts, Campaigns, `MetricsDaily`, Rules, Alerts, Settings.
+* **Redis** caches Shopify OAuth nonces (state validation) and is ready for queues / rate limiting.
+* **Token encryption** via AES-256-GCM (`backend/src/utils/crypto.ts`), keyed by `ENCRYPTION_KEY`.
+* **Shopify OAuth**: verifies HMAC, stores encrypted tokens, and registers critical webhooks.
+* **Meta OAuth**: exchanges codes for long-lived tokens, persists ad accounts, and seeds defaults.
+* **Background jobs** hydrate `MetricsDaily` and log every rule evaluation for audit and debugging.
 
 ## Testing & Quality
-- **Unit/Integration Tests** – Jest-based suites (see `tests/backend` examples in guide) for services and APIs.
-- **Linting & Type Safety** – ESLint + TypeScript strict settings across `backend`, `frontend`, and `common`.
-- **Database workflows** – `pnpm --filter backend prisma migrate dev` to evolve schema; `.env.example` captures required secrets.
-- **Continuous Integration** – `.github/workflows/ci.yml` ready for typecheck/lint/test/build pipelines.
+
+* **Unit/Integration tests** – Jest suites for services and APIs (see `tests/backend` examples in the guide).
+* **Linting & types** – ESLint + strict TypeScript across `backend`, `frontend`, and `common`.
+* **Database workflows** – `pnpm --filter backend prisma migrate dev` to evolve schema; `.env.example` documents required secrets.
+* **Continuous Integration** – `.github/workflows/ci.yml` for typecheck/lint/test/build pipelines.
 
 ## Roadmap
-| Phase | Status | Highlights |
-|-------|--------|------------|
-| Phase 1 | ✅ Complete | Typed skeleton, mock data, UI shell |
-| Phase 2 | 🚧 In Progress | Prisma DB, Shopify/Meta OAuth, encrypted storage, data sync |
-| Phase 3 | ⏳ Planned | Full AI automation loop, notification routing, advanced MetaBrain |
-| Phase 4 | ⏳ Planned | Dockerized deploy, monitoring, production hardening |
+
+| Phase   | Status         | Highlights                                                        |
+| ------- | -------------- | ----------------------------------------------------------------- |
+| Phase 1 | ✅ Complete     | Typed skeleton, mock data, UI shell                               |
+| Phase 2 | 🚧 In progress | Prisma DB, Shopify/Meta OAuth, encrypted storage, data sync       |
+| Phase 3 | ⏳ Planned      | Full AI automation loop, notification routing, advanced MetaBrain |
+| Phase 4 | ⏳ Planned      | Dockerized deploy, monitoring, production hardening               |
 
 ## License
+
 Private – All rights reserved.
-#   s h o p i f y - a d - i n t e l l  
- 
+
