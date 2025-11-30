@@ -51,7 +51,7 @@ You get a live, profit-focused control center for your Meta ads — with an AI "
 
 **The difference?** Most ad platforms obsess over clicks, impressions, and platform-reported ROAS. We focus on **actual profit** by connecting your Shopify sales data with Meta ad performance.
 
-For merchants spending $50K-$500K+/month on Meta ads, the difference between optimizing for ROAS versus true profitability can mean hundreds of thousands in lost revenue. At $200K/month ad spend, a 5% efficiency improvement = $10K/month in value for a $500 subscription. That's a 20x return.
+For merchants spending hundreds to thousands a month on Meta ads, the difference between optimizing for ROAS versus true profitability can mean hundreds of thousands in lost revenue. At $200K/month ad spend, a 5% efficiency improvement = $10K/month in value for a $500 subscription. That's a 20x return.
 
 ---
 
